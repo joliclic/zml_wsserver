@@ -21,7 +21,7 @@
 #define NUM_PIXELS 20
 #define CMD_PIN D2
 
-#define MAX_SPEED_DIVISOR 20
+#define MAX_SPEED_DIVISOR 50
 
 //ESP8266WiFiMulti WiFiMulti;
 
@@ -49,7 +49,8 @@ const uint32_t COLOR_PURPLE = pixels.Color(169, 0, 255);
 const uint32_t COLOR_ORANGE = pixels.Color(255, 130, 0);
 
 const uint16_t MAX_VARIABLE_DELAY = 2000; // ms
-uint16_t gVariableDelay = 1000; //ms
+uint16_t gVariableBlinkDelay = 1000; //ms
+uint16_t gVariableChaseDelay = 1000; //ms
 
 void blackLeds() {
     for (uint8_t i = 0; i < NUM_PIXELS; i++) {
@@ -77,12 +78,20 @@ int setSpeedDivisor(uint8_t aDivisor) {
     return aDivisor;
 }
 
-int setVariableSpeed(uint8_t aDivisor) {
+int setVariableBlinkSpeed(uint8_t aDivisor) {
     aDivisor = setSpeedDivisor(aDivisor);
     if (aDivisor == 0)
-        gVariableDelay = -1;
+        gVariableBlinkDelay = -1;
     else
-        gVariableDelay = MAX_VARIABLE_DELAY / aDivisor;
+        gVariableBlinkDelay = MAX_VARIABLE_DELAY / aDivisor;
+}
+
+int setVariableChaseSpeed(uint8_t aDivisor) {
+    aDivisor = setSpeedDivisor(aDivisor);
+    if (aDivisor == 0)
+        gVariableChaseDelay = -1;
+    else
+        gVariableChaseDelay = MAX_VARIABLE_DELAY / aDivisor;
 }
 
 void helloPixels() {
@@ -108,11 +117,11 @@ void blink() {
                 pixels.setPixelColor(i, gCurrentColor);
             }
             pixels.show();
-            setDelay(gVariableDelay);
+            setDelay(gVariableBlinkDelay);
             break;
         case 1:
             blackLeds();
-            setDelay(gVariableDelay);
+            setDelay(gVariableBlinkDelay);
             break;
     }
     gCurStep++;
@@ -123,6 +132,7 @@ void blink() {
 int16_t gChaseLastLedOn = -1;
 
 void doChase() {
+    blackLeds();
     gCurrentAction = &chase;
     gChaseLastLedOn = -1;
     chase();
@@ -138,7 +148,7 @@ void chase() {
     
     pixels.setPixelColor(gChaseLastLedOn, gCurrentColor);
     pixels.show();
-    setDelay(gVariableDelay);
+    setDelay(gVariableChaseDelay);
 }
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
@@ -183,22 +193,27 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
                 doBlink();
             } else if (text == "chase") {
                 doChase();
-            } else if (text_length == 7 || text_length == 8) {
-                USE_SERIAL.print("text_length = 7 or 8\n");
-                res = sscanf(chars_payload, "speed:%d", &s);
-                if (res == 1) {
-                    USE_SERIAL.printf("speed: %d\n", s);
-                    setVariableSpeed(s);
-                }
-            } else if (text_length == 12) {
-                USE_SERIAL.print("text_length = 12\n");
-                res = sscanf(chars_payload, "color#%02x%02x%02x", &r, &g, &b);
+            } else if (text_length == 12 || text_length == 13) {
+                USE_SERIAL.print("text_length = 12 or 13\n");
+                res = sscanf(chars_payload, "color:#%02x%02x%02x", &r, &g, &b);
                 if (res == 3) {
                     USE_SERIAL.printf("found: %u, r: %u, g: %u, b: %u\n",
                                       res, r, g, b);
                     gCurrentColor = pixels.Color((uint8_t) r,
                                                  (uint8_t) g,
                                                  (uint8_t) b);
+                } else {
+                    res = sscanf(chars_payload, "blinkspeed:%d", &s);
+                    if (res == 1) {
+                        USE_SERIAL.printf("blinkspeed: %d\n", s);
+                        setVariableBlinkSpeed(s);
+                    } else {
+                        res = sscanf(chars_payload, "chasespeed:%d", &s);
+                        if (res == 1) {
+                            USE_SERIAL.printf("chasespeed: %d\n", s);
+                            setVariableChaseSpeed(s);
+                        }
+                    }
                 }
             }
             
