@@ -12,13 +12,14 @@
 #include <Adafruit_NeoPixel.h>
 
 #include "router_config.h"
+#include "leds_layout.h"
 
 #define USE_SERIAL Serial
 
 #define MY_HOSTNAME "PifLeChien"
 #define USE_STATIC_IP 0
 //#define NUM_PIXELS 144
-#define NUM_PIXELS 20
+//#define NUM_PIXELS 20
 #define CMD_PIN D2
 
 #define MAX_SPEED_DIVISOR 50
@@ -34,6 +35,10 @@ IPAddress subnet(255,255,255,0);
 #endif
 
 Adafruit_NeoPixel pixels(NUM_PIXELS, CMD_PIN, NEO_GRB | NEO_KHZ800);
+
+uint8_t gNB_LED_GROUPS = 0;
+uint8_t gNB_LED_MAX_PER_GROUP = 0;
+uint8_t *gLAST_LED_OF_GROUP;
 
 void (*gCurrentAction)();
 
@@ -51,6 +56,52 @@ const uint32_t COLOR_ORANGE = pixels.Color(255, 130, 0);
 const uint16_t MAX_VARIABLE_DELAY = 2000; // ms
 uint16_t gVariableBlinkDelay = 1000; //ms
 uint16_t gVariableChaseDelay = 1000; //ms
+
+//int8_t gChaseLastLedOnAA[gNB_LED_GROUPS] = -1;
+void initLedLayoutData() {
+    uint8_t total_size = sizeof(LEDS_LAYOUT);
+    if (total_size > 0) {
+        gNB_LED_MAX_PER_GROUP = sizeof(LEDS_LAYOUT[0]);
+        gNB_LED_GROUPS = total_size / gNB_LED_MAX_PER_GROUP;
+    }
+    
+    gLAST_LED_OF_GROUP = new uint8_t[gNB_LED_GROUPS];
+    
+    uint8_t iled = -1;
+    for (uint8_t i = 0; i < gNB_LED_GROUPS; i++) {
+        iled = -1;
+        uint8_t j = 0;
+        while (LEDS_LAYOUT[i][j] >= 0 && j < gNB_LED_MAX_PER_GROUP) {
+            iled++;
+            j++;
+        }
+        gLAST_LED_OF_GROUP[i] = iled;
+    } 
+}
+
+void printLedLayoutData() {
+    USE_SERIAL.printf("led layout: number of group: %d\n", gNB_LED_GROUPS);
+    USE_SERIAL.printf("led layout - max number of led by group: %d\n",
+                      gNB_LED_MAX_PER_GROUP);
+    USE_SERIAL.println("LEDS_LAYOUT: ");
+    for (uint8_t i = 0; i < gNB_LED_GROUPS; i++) {
+        USE_SERIAL.print("{");
+        for (uint8_t j = 0; j < gNB_LED_MAX_PER_GROUP; j++) {
+            USE_SERIAL.printf("%d", LEDS_LAYOUT[i][j]);
+            if (j < gNB_LED_MAX_PER_GROUP - 1)
+                USE_SERIAL.print(", ");
+        }
+        USE_SERIAL.println("}");
+    }
+    USE_SERIAL.print("gLAST_LED_OF_GROUP: {");
+    for (uint8_t i = 0; i < gNB_LED_GROUPS; i++) {
+        USE_SERIAL.printf("%d", gLAST_LED_OF_GROUP[i]);
+        if (i < gNB_LED_GROUPS - 1)
+            USE_SERIAL.print(", ");
+    }
+    USE_SERIAL.println("}");
+    USE_SERIAL.println();
+}
 
 void blackLeds() {
     for (uint8_t i = 0; i < NUM_PIXELS; i++) {
@@ -135,10 +186,23 @@ void doChase() {
     blackLeds();
     gCurrentAction = &chase;
     gChaseLastLedOn = -1;
+    //for (uint8_t i = 0; i < gNB_LED_GROUPS; i++) {
+    //    gChaseLastLedOnAA[i] = -1;
+    //}
     chase();
 }
 
 void chase() {
+    //for (uint8_t i = 0; i < gNB_LED_GROUPS; i++) {
+    //    if (gChaseLastLedOnAA[i] >= 0)
+    //        pixels.setPixelColor(gChaseLastLedOnAA[i], 0);
+    //    
+    //    gChaseLastLedOnAA[i]++;
+    //    if (gChaseLastLedOn >= NUM_PIXELS)
+    //        gChaseLastLedOn = 0;
+    //    
+    //}
+    
     if (gChaseLastLedOn >= 0) 
         pixels.setPixelColor(gChaseLastLedOn, 0);
     
@@ -234,6 +298,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
 
 void setup() {
     gCurrentAction = &blackLeds;
+    initLedLayoutData();
+    
     // USE_SERIAL.begin(921600);
     USE_SERIAL.begin(115200);
     //USE_SERIAL.setDebugOutput(true);
@@ -242,6 +308,8 @@ void setup() {
     USE_SERIAL.println();
     USE_SERIAL.println();
 
+    printLedLayoutData();
+    
     for(uint8_t t = 4; t > 0; t--) {
         USE_SERIAL.printf("[SETUP] BOOT WAIT %d...\n", t);
         USE_SERIAL.flush();
@@ -271,6 +339,7 @@ void setup() {
     
     Serial.print("Connected, IP address: ");
     Serial.println(WiFi.localIP());
+    // TODO: display the hmac and the hostname too
     Serial.printf("Gateway IP: %s\n", WiFi.gatewayIP().toString().c_str());
     Serial.printf("Connection status: %d\n", WiFi.status());
     
