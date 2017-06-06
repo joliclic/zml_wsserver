@@ -308,7 +308,7 @@ void setup() {
     USE_SERIAL.println();
     USE_SERIAL.println();
 
-    printLedLayoutData();
+    //printLedLayoutData();
     
     for(uint8_t t = 4; t > 0; t--) {
         USE_SERIAL.printf("[SETUP] BOOT WAIT %d...\n", t);
@@ -340,7 +340,13 @@ void setup() {
     Serial.print("Connected, IP address: ");
     Serial.println(WiFi.localIP());
     // TODO: display the hmac and the hostname too
+    Serial.print("MAC: ");
+    Serial.println(WiFi.macAddress());
+    Serial.print("hostname: ");
+    Serial.println(MY_HOSTNAME);
     Serial.printf("Gateway IP: %s\n", WiFi.gatewayIP().toString().c_str());
+    Serial.print("subnet mask: ");
+    Serial.println(WiFi.subnetMask());
     Serial.printf("Connection status: %d\n", WiFi.status());
     
 //    WiFiMulti.addAP("MY_SSID", "MY_PASSWORD");
