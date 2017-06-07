@@ -18,8 +18,6 @@
 
 #define MY_HOSTNAME "PifLeChien"
 #define USE_STATIC_IP 0
-//#define NUM_PIXELS 144
-//#define NUM_PIXELS 20
 #define CMD_PIN D2
 
 #define MAX_SPEED_DIVISOR 50
@@ -36,8 +34,6 @@ IPAddress subnet(255,255,255,0);
 
 Adafruit_NeoPixel pixels(NUM_PIXELS, CMD_PIN, NEO_GRB | NEO_KHZ800);
 
-uint8_t gNB_LED_GROUPS = 0;
-uint8_t gNB_LED_MAX_PER_GROUP = 0;
 uint8_t *gLAST_LED_OF_GROUP;
 
 void (*gCurrentAction)();
@@ -57,21 +53,14 @@ const uint16_t MAX_VARIABLE_DELAY = 2000; // ms
 uint16_t gVariableBlinkDelay = 1000; //ms
 uint16_t gVariableChaseDelay = 1000; //ms
 
-//int8_t gChaseLastLedOnAA[gNB_LED_GROUPS] = -1;
 void initLedLayoutData() {
-    uint8_t total_size = sizeof(LEDS_LAYOUT);
-    if (total_size > 0) {
-        gNB_LED_MAX_PER_GROUP = sizeof(LEDS_LAYOUT[0]);
-        gNB_LED_GROUPS = total_size / gNB_LED_MAX_PER_GROUP;
-    }
-    
-    gLAST_LED_OF_GROUP = new uint8_t[gNB_LED_GROUPS];
+    gLAST_LED_OF_GROUP = new uint8_t[NB_LED_GROUPS];
     
     uint8_t iled = -1;
-    for (uint8_t i = 0; i < gNB_LED_GROUPS; i++) {
+    for (uint8_t i = 0; i < NB_LED_GROUPS; i++) {
         iled = -1;
         uint8_t j = 0;
-        while (LEDS_LAYOUT[i][j] >= 0 && j < gNB_LED_MAX_PER_GROUP) {
+        while (j < NB_LED_MAX_PER_GROUP && LEDS_LAYOUT[i][j] >= 0) {
             iled++;
             j++;
         }
@@ -80,23 +69,23 @@ void initLedLayoutData() {
 }
 
 void printLedLayoutData() {
-    USE_SERIAL.printf("led layout: number of group: %d\n", gNB_LED_GROUPS);
+    USE_SERIAL.printf("led layout: number of group: %d\n", NB_LED_GROUPS);
     USE_SERIAL.printf("led layout - max number of led by group: %d\n",
-                      gNB_LED_MAX_PER_GROUP);
+                      NB_LED_MAX_PER_GROUP);
     USE_SERIAL.println("LEDS_LAYOUT: ");
-    for (uint8_t i = 0; i < gNB_LED_GROUPS; i++) {
+    for (uint8_t i = 0; i < NB_LED_GROUPS; i++) {
         USE_SERIAL.print("{");
-        for (uint8_t j = 0; j < gNB_LED_MAX_PER_GROUP; j++) {
+        for (uint8_t j = 0; j < NB_LED_MAX_PER_GROUP; j++) {
             USE_SERIAL.printf("%d", LEDS_LAYOUT[i][j]);
-            if (j < gNB_LED_MAX_PER_GROUP - 1)
+            if (j < NB_LED_MAX_PER_GROUP - 1)
                 USE_SERIAL.print(", ");
         }
         USE_SERIAL.println("}");
     }
     USE_SERIAL.print("gLAST_LED_OF_GROUP: {");
-    for (uint8_t i = 0; i < gNB_LED_GROUPS; i++) {
+    for (uint8_t i = 0; i < NB_LED_GROUPS; i++) {
         USE_SERIAL.printf("%d", gLAST_LED_OF_GROUP[i]);
-        if (i < gNB_LED_GROUPS - 1)
+        if (i < NB_LED_GROUPS - 1)
             USE_SERIAL.print(", ");
     }
     USE_SERIAL.println("}");
@@ -180,37 +169,39 @@ void blink() {
         gCurStep = 0;
 }
 
-int16_t gChaseLastLedOn = -1;
+//int16_t gChaseLastLedOn = -1;
+int8_t *gChaseLastILed;
 
 void doChase() {
     blackLeds();
     gCurrentAction = &chase;
-    gChaseLastLedOn = -1;
-    //for (uint8_t i = 0; i < gNB_LED_GROUPS; i++) {
-    //    gChaseLastLedOnAA[i] = -1;
-    //}
+    //gChaseLastLedOn = -1;
+    for (uint8_t i = 0; i < NB_LED_GROUPS; i++) {
+        gChaseLastILed[i] = -1;
+    }
     chase();
 }
 
 void chase() {
-    //for (uint8_t i = 0; i < gNB_LED_GROUPS; i++) {
-    //    if (gChaseLastLedOnAA[i] >= 0)
-    //        pixels.setPixelColor(gChaseLastLedOnAA[i], 0);
-    //    
-    //    gChaseLastLedOnAA[i]++;
-    //    if (gChaseLastLedOn >= NUM_PIXELS)
-    //        gChaseLastLedOn = 0;
-    //    
-    //}
+    for (uint8_t i = 0; i < NB_LED_GROUPS; i++) {
+        if (gChaseLastILed[i] >= 0)
+            pixels.setPixelColor(LEDS_LAYOUT[i][gChaseLastILed[i]], 0);
+        
+        gChaseLastILed[i]++;
+        //gChaseLastILed[i] = gChaseLastILed[i] + 1;
+        if (gChaseLastILed[i] >= gLAST_LED_OF_GROUP[i])
+            gChaseLastILed[i] = 0;
+        pixels.setPixelColor(LEDS_LAYOUT[i][gChaseLastILed[i]], gCurrentColor);
+    }
     
-    if (gChaseLastLedOn >= 0) 
-        pixels.setPixelColor(gChaseLastLedOn, 0);
-    
-    gChaseLastLedOn++;
-    if (gChaseLastLedOn >= NUM_PIXELS)
-        gChaseLastLedOn = 0;
-    
-    pixels.setPixelColor(gChaseLastLedOn, gCurrentColor);
+    //if (gChaseLastLedOn >= 0) 
+    //    pixels.setPixelColor(gChaseLastLedOn, 0);
+    //
+    //gChaseLastLedOn++;
+    //if (gChaseLastLedOn >= NUM_PIXELS)
+    //    gChaseLastLedOn = 0;
+    //
+    //pixels.setPixelColor(gChaseLastLedOn, gCurrentColor);
     pixels.show();
     setDelay(gVariableChaseDelay);
 }
@@ -220,6 +211,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
     switch(type) {
         case WStype_DISCONNECTED:
             USE_SERIAL.printf("[%u] Disconnected!\n", num);
+            // TODO: switch off all leds
             break;
         case WStype_CONNECTED: {
                 IPAddress ip = webSocket.remoteIP(num);
@@ -297,9 +289,6 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
 }
 
 void setup() {
-    gCurrentAction = &blackLeds;
-    initLedLayoutData();
-    
     // USE_SERIAL.begin(921600);
     USE_SERIAL.begin(115200);
     //USE_SERIAL.setDebugOutput(true);
@@ -308,7 +297,11 @@ void setup() {
     USE_SERIAL.println();
     USE_SERIAL.println();
 
-    //printLedLayoutData();
+    gCurrentAction = &blackLeds;
+    initLedLayoutData();
+    gChaseLastILed = new int8_t[NB_LED_GROUPS];
+
+    printLedLayoutData();
     
     for(uint8_t t = 4; t > 0; t--) {
         USE_SERIAL.printf("[SETUP] BOOT WAIT %d...\n", t);
@@ -339,7 +332,6 @@ void setup() {
     
     Serial.print("Connected, IP address: ");
     Serial.println(WiFi.localIP());
-    // TODO: display the hmac and the hostname too
     Serial.print("MAC: ");
     Serial.println(WiFi.macAddress());
     Serial.print("hostname: ");
