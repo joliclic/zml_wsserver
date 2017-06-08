@@ -188,7 +188,6 @@ void chase() {
             pixels.setPixelColor(LEDS_LAYOUT[i][gChaseLastILed[i]], 0);
         
         gChaseLastILed[i]++;
-        //gChaseLastILed[i] = gChaseLastILed[i] + 1;
         if (gChaseLastILed[i] >= gLAST_LED_OF_GROUP[i])
             gChaseLastILed[i] = 0;
         pixels.setPixelColor(LEDS_LAYOUT[i][gChaseLastILed[i]], gCurrentColor);
@@ -206,12 +205,62 @@ void chase() {
     setDelay(gVariableChaseDelay);
 }
 
+uint8_t *gDoubleChaseDir; // 0: up, 1: down
+
+void doDoubleChase() {
+    blackLeds();
+    gCurrentAction = &doubleChase;
+    for (uint8_t i = 0; i < NB_LED_GROUPS; i++) {
+        gChaseLastILed[i] = -1;
+        gDoubleChaseDir[i] = 0;
+    }
+    doubleChase();
+}
+
+void doubleChase() {
+    for (uint8_t i = 0; i < NB_LED_GROUPS; i++) {
+        if (gChaseLastILed[i] >= 0)
+            pixels.setPixelColor(LEDS_LAYOUT[i][gChaseLastILed[i]], 0);
+        
+        if (gDoubleChaseDir[i] == 0) {
+            gChaseLastILed[i]++;
+            if (gChaseLastILed[i] >= gLAST_LED_OF_GROUP[i]) {
+                gDoubleChaseDir[i] = -1;
+                gChaseLastILed[i]++;
+                if (gLAST_LED_OF_GROUP[i] > 1)
+                    gChaseLastILed[i]++;
+            }
+        } else {
+            gChaseLastILed[i]--;
+            if (gChaseLastILed[i] < 0) {
+                gDoubleChaseDir[i] = 0;
+                if (gLAST_LED_OF_GROUP[i] > 1)
+                    gChaseLastILed[i] = 1;
+                else
+                    gChaseLastILed[i] = 0;
+            }
+        }
+        pixels.setPixelColor(LEDS_LAYOUT[i][gChaseLastILed[i]], gCurrentColor);
+    }
+    
+    //if (gChaseLastLedOn >= 0) 
+    //    pixels.setPixelColor(gChaseLastLedOn, 0);
+    //
+    //gChaseLastLedOn++;
+    //if (gChaseLastLedOn >= NUM_PIXELS)
+    //    gChaseLastLedOn = 0;
+    //
+    //pixels.setPixelColor(gChaseLastLedOn, gCurrentColor);
+    pixels.show();
+    setDelay(gVariableChaseDelay);
+}
+
+
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
     
     switch(type) {
         case WStype_DISCONNECTED:
             USE_SERIAL.printf("[%u] Disconnected!\n", num);
-            // TODO: switch off all leds
             break;
         case WStype_CONNECTED: {
                 IPAddress ip = webSocket.remoteIP(num);
@@ -249,6 +298,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
                 doBlink();
             } else if (text == "chase") {
                 doChase();
+            } else if (text == "doublechase") {
+                doDoubleChase();
             } else if (text_length == 12 || text_length == 13) {
                 USE_SERIAL.print("text_length = 12 or 13\n");
                 res = sscanf(chars_payload, "color:#%02x%02x%02x", &r, &g, &b);
@@ -300,6 +351,7 @@ void setup() {
     gCurrentAction = &blackLeds;
     initLedLayoutData();
     gChaseLastILed = new int8_t[NB_LED_GROUPS];
+    gDoubleChaseDir = new uint8_t[NB_LED_GROUPS];
 
     printLedLayoutData();
     
