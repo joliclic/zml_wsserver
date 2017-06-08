@@ -12,12 +12,11 @@
 #include <Adafruit_NeoPixel.h>
 
 #include "router_config.h"
+#include "wifi_host_config.h"
 #include "leds_layout.h"
 
 #define USE_SERIAL Serial
 
-#define MY_HOSTNAME "PifLeChien"
-#define USE_STATIC_IP 0
 #define CMD_PIN D2
 
 #define MAX_SPEED_DIVISOR 50
@@ -25,12 +24,6 @@
 //ESP8266WiFiMulti WiFiMulti;
 
 WebSocketsServer webSocket = WebSocketsServer(81);
-
-#if USE_STATIC_IP
-IPAddress staticIP(192,168,0,42);
-IPAddress gateway(192,168,0,255);
-IPAddress subnet(255,255,255,0);
-#endif
 
 Adafruit_NeoPixel pixels(NUM_PIXELS, CMD_PIN, NEO_GRB | NEO_KHZ800);
 
@@ -353,7 +346,7 @@ void setup() {
     gChaseLastILed = new int8_t[NB_LED_GROUPS];
     gDoubleChaseDir = new uint8_t[NB_LED_GROUPS];
 
-    printLedLayoutData();
+    //printLedLayoutData();
     
     for(uint8_t t = 4; t > 0; t--) {
         USE_SERIAL.printf("[SETUP] BOOT WAIT %d...\n", t);
