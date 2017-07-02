@@ -85,7 +85,7 @@ void printLedLayoutData() {
     USE_SERIAL.println();
 }
 
-void blackLeds() {
+void blackOut() {
     for (uint8_t i = 0; i < NUM_PIXELS; i++) {
         pixels.setPixelColor(i, 0);
     }
@@ -133,7 +133,7 @@ void helloPixels() {
     }
     pixels.show();
     delay(100);
-    blackLeds();
+    blackOut();
     USE_SERIAL.print("Leds should have blinked\n");
 }
 
@@ -153,7 +153,7 @@ void blink() {
             setDelay(gVariableBlinkDelay);
             break;
         case 1:
-            blackLeds();
+            blackOut();
             setDelay(gVariableBlinkDelay);
             break;
     }
@@ -166,7 +166,7 @@ void blink() {
 int8_t *gChaseLastILed;
 
 void doChase() {
-    blackLeds();
+    blackOut();
     gCurrentAction = &chase;
     //gChaseLastLedOn = -1;
     for (uint8_t i = 0; i < NB_LED_GROUPS; i++) {
@@ -201,7 +201,7 @@ void chase() {
 uint8_t *gDoubleChaseDir; // 0: up, 1: down
 
 void doDoubleChase() {
-    blackLeds();
+    blackOut();
     gCurrentAction = &doubleChase;
     for (uint8_t i = 0; i < NB_LED_GROUPS; i++) {
         gChaseLastILed[i] = -1;
@@ -275,9 +275,9 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
             
             if (text == "ping") {
                 webSocket.sendTXT(num, "pong");
-            } else if (text == "black") {
-                gCurrentAction = &blackLeds;
-                blackLeds();
+            } else if (text == "black" || text == "blackout") {
+                gCurrentAction = &blackOut;
+                blackOut();
                 setDelay(-1);
                 USE_SERIAL.print("all leds should be turned off now...\n");
             } else if (text == "color:purple") {
@@ -341,7 +341,7 @@ void setup() {
     USE_SERIAL.println();
     USE_SERIAL.println();
 
-    gCurrentAction = &blackLeds;
+    gCurrentAction = &blackOut;
     initLedLayoutData();
     gChaseLastILed = new int8_t[NB_LED_GROUPS];
     gDoubleChaseDir = new uint8_t[NB_LED_GROUPS];
