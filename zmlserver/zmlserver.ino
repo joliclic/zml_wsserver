@@ -21,6 +21,8 @@
 
 #define BIG_TICK 84
 
+#define HEART_TICK 42
+
 #define MAX_SPEED_DIVISOR 50
 
 //ESP8266WiFiMulti WiFiMulti;
@@ -339,7 +341,7 @@ void gradientsBy4
 }
 
 uint16_t gLastStepHeart = 0;
-uint8_t gStepFactorHeart = 2;
+uint8_t gStepFactorHeart = 4;
 uint8_t gLastStepFactorHeart = 1;
 uint32_t gColorBlack = pixels.Color(0, 0, 0);
 uint32_t gColorHeart1 = pixels.Color(153, 0, 36);
@@ -358,7 +360,7 @@ void doHeart() {
 void heart() {
     gradientsBy4(gColorBlack, 1, gColorHeart1, 1, gColorBlack, 1, gColorHeart2,
                  3, gLastStepHeart, gStepFactorHeart, gLastStepFactorHeart);
-    setDelay(BIG_TICK);
+    setDelay(HEART_TICK);
 }
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
@@ -428,6 +430,13 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
                         if (res == 1) {
                             USE_SERIAL.printf("chasespeed: %d\n", s);
                             setVariableChaseSpeed(s);
+                        } else {
+                            res = sscanf(chars_payload, "heartspeed:%d", &s);
+                            if (res == 1) {
+                                USE_SERIAL.printf("chasespeed: %d\n", s);
+                                // we want in fact the opposite of s
+                                setHeartStepFactor(-s);
+                            }
                         }
                     }
                 }
