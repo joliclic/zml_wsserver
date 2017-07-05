@@ -50,7 +50,8 @@ const uint32_t COLOR_ORANGE = pixels.Color(255, 130, 0);
 
 const uint16_t MAX_VARIABLE_DELAY = 2000; // ms
 uint16_t gVariableBlinkDelay = 1000; //ms
-uint16_t gVariableChaseDelay = 1000; //ms
+uint16_t gVariableChaseDelay = 1000;
+uint16_t gVariableDChaseDelay = 1000;
 
 void initLedLayoutData() {
     gLAST_LED_OF_GROUP = new uint8_t[NB_LED_GROUPS];
@@ -152,6 +153,14 @@ int setVariableChaseSpeed(uint8_t aDivisor) {
         gVariableChaseDelay = -1;
     else
         gVariableChaseDelay = MAX_VARIABLE_DELAY / aDivisor;
+}
+
+int setVariableDoubleChaseSpeed(uint8_t aDivisor) {
+    aDivisor = setSpeedDivisor(aDivisor);
+    if (aDivisor == 0)
+        gVariableDChaseDelay = -1;
+    else
+        gVariableDChaseDelay = MAX_VARIABLE_DELAY / aDivisor;
 }
 
 void helloPixels() {
@@ -431,11 +440,17 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
                             USE_SERIAL.printf("chasespeed: %d\n", s);
                             setVariableChaseSpeed(s);
                         } else {
-                            res = sscanf(chars_payload, "heartspeed:%d", &s);
+                            res = sscanf(chars_payload, "dchsespeed:%d", &s);
                             if (res == 1) {
-                                USE_SERIAL.printf("chasespeed: %d\n", s);
-                                // we want in fact the opposite of s
-                                setHeartStepFactor(-s);
+                                USE_SERIAL.printf("dchsespeed: %d\n", s);
+                                setVariableDoubleChaseSpeed(s);
+                            } else {
+                                res = sscanf(chars_payload, "heartspeed:%d", &s);
+                                if (res == 1) {
+                                    USE_SERIAL.printf("heartspeed: %d\n", s);
+                                    // we want in fact the opposite of s
+                                    setHeartStepFactor(-s);
+                                }
                             }
                         }
                     }

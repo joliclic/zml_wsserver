@@ -8,7 +8,7 @@ var fse = require('fs-extra');
 
 var cfg = {
     //masks: ["foxynico", "jofox"],
-    masks: ["foxynico"],
+    masks: ["foxynico", "bird"],
     
     dependencies: ["leds_layout.h", "router_config.h", "wifi_host_config.h"],
     
