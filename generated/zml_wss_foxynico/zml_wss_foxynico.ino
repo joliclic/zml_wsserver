@@ -275,7 +275,7 @@ void doubleChase() {
     //
     //pixels.setPixelColor(gChaseLastLedOn, gCurrentColor);
     pixels.show();
-    setDelay(gVariableChaseDelay);
+    setDelay(gVariableDChaseDelay);
 }
 
 #define MAX_STEP_FACTOR_GB4 100

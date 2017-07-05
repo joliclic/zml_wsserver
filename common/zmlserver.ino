@@ -216,14 +216,6 @@ void chase() {
         pixels.setPixelColor(LEDS_LAYOUT[i][gChaseLastILed[i]], gCurrentColor);
     }
     
-    //if (gChaseLastLedOn >= 0) 
-    //    pixels.setPixelColor(gChaseLastLedOn, 0);
-    //
-    //gChaseLastLedOn++;
-    //if (gChaseLastLedOn >= NUM_PIXELS)
-    //    gChaseLastLedOn = 0;
-    //
-    //pixels.setPixelColor(gChaseLastLedOn, gCurrentColor);
     pixels.show();
     setDelay(gVariableChaseDelay);
 }
@@ -265,17 +257,8 @@ void doubleChase() {
         }
         pixels.setPixelColor(LEDS_LAYOUT[i][gChaseLastILed[i]], gCurrentColor);
     }
-    
-    //if (gChaseLastLedOn >= 0) 
-    //    pixels.setPixelColor(gChaseLastLedOn, 0);
-    //
-    //gChaseLastLedOn++;
-    //if (gChaseLastLedOn >= NUM_PIXELS)
-    //    gChaseLastLedOn = 0;
-    //
-    //pixels.setPixelColor(gChaseLastLedOn, gCurrentColor);
     pixels.show();
-    setDelay(gVariableChaseDelay);
+    setDelay(gVariableDChaseDelay);
 }
 
 #define MAX_STEP_FACTOR_GB4 100
