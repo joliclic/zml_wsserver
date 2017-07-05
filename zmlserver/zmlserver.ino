@@ -19,6 +19,8 @@
 
 #define CMD_PIN D2
 
+#define BIG_TICK 84
+
 #define MAX_SPEED_DIVISOR 50
 
 //ESP8266WiFiMulti WiFiMulti;
@@ -38,6 +40,8 @@ unsigned int gCurStep = 0;
 //uint8_t gColorR, gColorG, gColorB;
 //uint32_t gCurrentColor = pixels.Color(0, 0, 0);
 uint32_t gCurrentColor = pixels.Color(169, 0, 255);
+
+uint32_t gLastColor = gCurrentColor;
 
 const uint32_t COLOR_PURPLE = pixels.Color(169, 0, 255);
 const uint32_t COLOR_ORANGE = pixels.Color(255, 130, 0);
@@ -85,11 +89,19 @@ void printLedLayoutData() {
     USE_SERIAL.println();
 }
 
-void blackOut() {
+void showAllPixels(uint32_t aColor) {
     for (uint8_t i = 0; i < NUM_PIXELS; i++) {
-        pixels.setPixelColor(i, 0);
+        pixels.setPixelColor(i, aColor);
     }
     pixels.show();
+}
+
+void showAllPixels(uint8_t aR, uint8_t aG, uint8_t aB) {
+    showAllPixels(pixels.Color(aR, aG, aB));
+}
+
+void blackOut() {
+    showAllPixels(0);
 }
 
 void myBigLoop() {
@@ -102,6 +114,19 @@ void setDelay(long aDelay) {
         gNextActionTime = -1;
     else
         gNextActionTime = millis() + aDelay;
+}
+
+void doContinuous() {
+    gCurrentAction = &continuous;
+    continuous();
+}
+
+void continuous() {
+    if (gCurrentColor != gLastColor) {
+        showAllPixels(gCurrentColor);
+        gLastColor = gCurrentColor;
+    }
+    setDelay(BIG_TICK);
 }
 
 int setSpeedDivisor(uint8_t aDivisor) {
@@ -128,10 +153,7 @@ int setVariableChaseSpeed(uint8_t aDivisor) {
 }
 
 void helloPixels() {
-    for (uint8_t i = 0; i < NUM_PIXELS; i++) {
-        pixels.setPixelColor(i, pixels.Color(100, 100, 100));
-    }
-    pixels.show();
+    showAllPixels(100, 100, 100);
     delay(100);
     blackOut();
     USE_SERIAL.print("Leds should have blinked\n");
@@ -146,10 +168,7 @@ void doBlink() {
 void blink() {
     switch (gCurStep) {
         case 0:
-            for (uint8_t i = 0; i < NUM_PIXELS; i++) {
-                pixels.setPixelColor(i, gCurrentColor);
-            }
-            pixels.show();
+            showAllPixels(gCurrentColor);
             setDelay(gVariableBlinkDelay);
             break;
         case 1:
@@ -198,7 +217,7 @@ void chase() {
     setDelay(gVariableChaseDelay);
 }
 
-uint8_t *gDoubleChaseDir; // 0: up, 1: down
+uint8_t *gDoubleChaseDir; // 0: up, black1: down
 
 void doDoubleChase() {
     blackOut();
@@ -248,6 +267,99 @@ void doubleChase() {
     setDelay(gVariableChaseDelay);
 }
 
+#define MAX_STEP_FACTOR_GB4 100
+
+void setStepFactorGB4(uint8_t aFactor, uint8_t &aStepFactor) {
+    if (aFactor == aStepFactor)
+        return;
+    
+    if (aFactor < 1)
+        aStepFactor = 1;
+    else if (aFactor > MAX_STEP_FACTOR_GB4)
+        aStepFactor = MAX_STEP_FACTOR_GB4;
+    else
+        aStepFactor = aFactor;
+}
+
+void gradientsBy4
+(uint32_t aColor1, uint8_t aNbSteps1, uint32_t aColor2, uint8_t aNbSteps2,
+ uint32_t aColor3, uint8_t aNbSteps3, uint32_t aColor4, uint8_t aNbSteps4,
+ uint16_t &aLastStep, uint8_t &aStepFactor, uint8_t &aLastStepFactor) {
+    
+    if (aStepFactor != aLastStepFactor) {
+        aLastStep = aLastStep * aStepFactor / aLastStepFactor;
+        aLastStepFactor = aStepFactor;
+    }
+    
+    aLastStep++;
+    uint16_t step = aLastStep;
+    uint32_t color, color1, color2;
+    uint8_t nbSteps;
+    if (step >= (aNbSteps1 + aNbSteps2 + aNbSteps3 + aNbSteps4) * aStepFactor) {
+        step = 0;
+        aLastStep = 0;
+    }
+    if (step < aNbSteps1 * aStepFactor) {
+        color1 = aColor1;
+        color2 = aColor2;
+        nbSteps = aNbSteps1 * aStepFactor;
+    } else if (step < (aNbSteps1 + aNbSteps2) * aStepFactor) {
+        color1 = aColor2;
+        color2 = aColor3;
+        step = step - aNbSteps1 * aStepFactor;
+        nbSteps = aNbSteps2 * aStepFactor;
+    } else if (step < (aNbSteps1 + aNbSteps2 + aNbSteps3) * aStepFactor) {
+        color1 = aColor3;
+        color2 = aColor4;
+        step = step - (aNbSteps1 + aNbSteps2) * aStepFactor;
+        nbSteps = aNbSteps3 * aStepFactor;
+    } else if (step < (aNbSteps1 + aNbSteps2 + aNbSteps3 + aNbSteps4) * aStepFactor) {
+        color1 = aColor4;
+        color2 = aColor1;
+        step = step - (aNbSteps1 + aNbSteps2 + aNbSteps3) * aStepFactor;
+        nbSteps = aNbSteps4 * aStepFactor;
+    }
+    
+    if (step == 0) {
+        color = color1;
+    } else {
+        uint8_t r1 = (uint8_t) (color1 >> 16);
+        uint8_t g1 = (uint8_t) (color1 >> 8);
+        uint8_t b1 = (uint8_t) color1;
+        uint8_t r2 = (uint8_t) (color2 >> 16);
+        uint8_t g2 = (uint8_t) (color2 >> 8);
+        uint8_t b2 = (uint8_t) color2;
+        
+        uint8_t r = r1 + step * (r2 - r1) / (nbSteps + 2);
+        uint8_t g = g1 + step * (g2 - g1) / (nbSteps + 2);
+        uint8_t b = b1 + step * (b2 - b1) / (nbSteps + 2);
+        color = pixels.Color(r, g, b);
+    }
+    showAllPixels(color);
+}
+
+uint16_t gLastStepHeart = 0;
+uint8_t gStepFactorHeart = 2;
+uint8_t gLastStepFactorHeart = 1;
+uint32_t gColorBlack = pixels.Color(0, 0, 0);
+uint32_t gColorHeart1 = pixels.Color(153, 0, 36);
+uint32_t gColorHeart2 = pixels.Color(204, 0, 48);
+
+void setHeartStepFactor(uint8_t aFactor) {
+    setStepFactorGB4(aFactor, gStepFactorHeart);
+}
+
+void doHeart() {
+    gLastStepHeart = 0;
+    gCurrentAction = &heart;
+    heart();
+}
+
+void heart() {
+    gradientsBy4(gColorBlack, 1, gColorHeart1, 1, gColorBlack, 1, gColorHeart2,
+                 3, gLastStepHeart, gStepFactorHeart, gLastStepFactorHeart);
+    setDelay(BIG_TICK);
+}
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
     
@@ -280,6 +392,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
                 blackOut();
                 setDelay(-1);
                 USE_SERIAL.print("all leds should be turned off now...\n");
+            } else if (text == "continuous") {
+                doContinuous();
             } else if (text == "color:purple") {
                 gCurrentColor = COLOR_PURPLE;
             } else if (text == "color:orange") {
@@ -293,6 +407,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
                 doChase();
             } else if (text == "doublechase") {
                 doDoubleChase();
+            } else if (text == "heart") {
+                doHeart();
             } else if (text_length == 12 || text_length == 13) {
                 USE_SERIAL.print("text_length = 12 or 13\n");
                 res = sscanf(chars_payload, "color:#%02x%02x%02x", &r, &g, &b);
