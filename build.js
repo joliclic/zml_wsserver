@@ -7,9 +7,10 @@ var fs = require('fs');
 var fse = require('fs-extra');
 
 var cfg = {
-    masks: ["foxynico", "jofox"],
+    //masks: ["foxynico", "jofox"],
+    masks: ["foxynico"],
     
-    dependancies: ["leds_layout.h"  "router_config.h", "wifi_host_config.h"]
+    dependencies: ["leds_layout.h", "router_config.h", "wifi_host_config.h"],
     
     mainInoSrc: "zmlserver.ino",
     
@@ -17,9 +18,9 @@ var cfg = {
     
     masks_dir: path.join('.', 'masks'),
     
-    target_dir: path.join('.', 'www'),
+    target_dir: path.join('.', 'generated'),
     
-    mainInoPrefix: "zml_ws_"
+    mainInoPrefix: "zml_wss_"
 };
 
 fse.ensureDirSync(cfg.target_dir);
@@ -31,12 +32,12 @@ var curMaskName, curMaskDirname, curMaskDir, curIno, curDep, curDepSrc,
 for (var i = 0, l = cfg.masks.length; i < l; i++) {
     curMaskName = cfg.masks[i];
     curMaskDirname = cfg.mainInoPrefix + curMaskName;
-    curMaskDir = path.join(target_dir, curMaskDirname);
-    fs.ensureDirSync(curMaskDir);
-    curIno =  = path.join(curMaskDir, curMaskDirname + ".ino");
+    curMaskDir = path.join(cfg.target_dir, curMaskDirname);
+    fse.ensureDirSync(curMaskDir);
+    curIno =  path.join(curMaskDir, curMaskDirname + ".ino");
     fse.copySync(mainInoSrcPath, curIno);
-    for (var j = 0, m = cfg.dependancies.length; j < m; j++) {
-        curDep = cfg.dependancies[i];
+    for (var j = 0, m = cfg.dependencies.length; j < m; j++) {
+        curDep = cfg.dependencies[j];
         curDepDest = path.join(curMaskDir, curDep);
         curDepSrc = path.join(cfg.masks_dir, curMaskName, curDep);
         if (fs.existsSync(curDepSrc)) {
