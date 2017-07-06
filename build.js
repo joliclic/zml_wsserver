@@ -7,8 +7,8 @@ var fs = require('fs');
 var fse = require('fs-extra');
 
 var cfg = {
-    //masks: ["foxynico", "jofox"],
-    masks: ["foxynico", "bird", "sorcerer"],
+    masks: ["bird", "dancyskull", "dedebiabolo", "filoudevil", "foxynico",
+            "jaguar", "joparrot", "skullybeno", "sorcerer"],
     
     dependencies: ["leds_layout.h", "router_config.h", "wifi_host_config.h"],
     
