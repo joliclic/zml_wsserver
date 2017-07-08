@@ -107,11 +107,6 @@ void blackOut() {
     showAllPixels(0);
 }
 
-void myBigLoop() {
-    USE_SERIAL.print("*");
-    setDelay(500);
-}
-
 void setDelay(long aDelay) {
     if (aDelay < 0)
         gNextActionTime = -1;
@@ -392,9 +387,6 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
                 gCurrentColor = COLOR_PURPLE;
             } else if (text == "color:orange") {
                 gCurrentColor = COLOR_ORANGE;
-            } else if (text == "bigloop") {
-                gCurrentAction = &myBigLoop;
-                gCurrentAction();
             } else if (text == "blink") {
                 doBlink();
             } else if (text == "chase") {
