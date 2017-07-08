@@ -19,7 +19,7 @@
 
 #define CMD_PIN D2
 
-#define BIG_TICK 84
+#define BIG_TICK 42
 
 #define HEART_TICK 42
 
@@ -39,14 +39,17 @@ long gNextActionTime = -1;
 
 unsigned int gCurStep = 0;
 
-//uint8_t gColorR, gColorG, gColorB;
-//uint32_t gCurrentColor = pixels.Color(0, 0, 0);
-uint32_t gCurrentColor = pixels.Color(169, 0, 255);
-
-uint32_t gLastColor = gCurrentColor;
-
+const uint32_t COLOR_BLACK = pixels.Color(0, 0, 0);
 const uint32_t COLOR_PURPLE = pixels.Color(169, 0, 255);
 const uint32_t COLOR_ORANGE = pixels.Color(255, 130, 0);
+
+//uint8_t gColorR, gColorG, gColorB;
+//uint32_t gColor = pixels.Color(0, 0, 0);
+uint32_t gColor = COLOR_PURPLE;
+
+// gLastColor MUST be different than gColor
+uint32_t gLastColor = COLOR_BLACK;
+
 
 const uint16_t MAX_VARIABLE_DELAY = 2000; // ms
 uint16_t gVariableBlinkDelay = 1000; //ms
@@ -120,9 +123,9 @@ void doContinuous() {
 }
 
 void continuous() {
-    if (gCurrentColor != gLastColor) {
-        showAllPixels(gCurrentColor);
-        gLastColor = gCurrentColor;
+    if (gColor != gLastColor) {
+        showAllPixels(gColor);
+        gLastColor = gColor;
     }
     setDelay(BIG_TICK);
 }
@@ -174,7 +177,7 @@ void doBlink() {
 void blink() {
     switch (gCurStep) {
         case 0:
-            showAllPixels(gCurrentColor);
+            showAllPixels(gColor);
             setDelay(gVariableBlinkDelay);
             break;
         case 1:
@@ -208,7 +211,7 @@ void chase() {
         gChaseLastILed[i]++;
         if (gChaseLastILed[i] >= gLAST_LED_OF_GROUP[i])
             gChaseLastILed[i] = 0;
-        pixels.setPixelColor(LEDS_LAYOUT[i][gChaseLastILed[i]], gCurrentColor);
+        pixels.setPixelColor(LEDS_LAYOUT[i][gChaseLastILed[i]], gColor);
     }
     
     pixels.show();
@@ -250,7 +253,7 @@ void doubleChase() {
                     gChaseLastILed[i] = 0;
             }
         }
-        pixels.setPixelColor(LEDS_LAYOUT[i][gChaseLastILed[i]], gCurrentColor);
+        pixels.setPixelColor(LEDS_LAYOUT[i][gChaseLastILed[i]], gColor);
     }
     pixels.show();
     setDelay(gVariableDChaseDelay);
@@ -384,9 +387,9 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
             } else if (text == "continuous") {
                 doContinuous();
             } else if (text == "color:purple") {
-                gCurrentColor = COLOR_PURPLE;
+                gColor = COLOR_PURPLE;
             } else if (text == "color:orange") {
-                gCurrentColor = COLOR_ORANGE;
+                gColor = COLOR_ORANGE;
             } else if (text == "blink") {
                 doBlink();
             } else if (text == "chase") {
@@ -401,7 +404,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
                 if (res == 3) {
                     USE_SERIAL.printf("found: %u, r: %u, g: %u, b: %u\n",
                                       res, r, g, b);
-                    gCurrentColor = pixels.Color((uint8_t) r,
+                    gColor = pixels.Color((uint8_t) r,
                                                  (uint8_t) g,
                                                  (uint8_t) b);
                 } else {
