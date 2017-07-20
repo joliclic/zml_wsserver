@@ -353,6 +353,57 @@ void heart() {
     setDelay(HEART_TICK);
 }
 
+double h2rgb(double aV1, double aV2, uint8_t aH) {
+    if (aH < 0) aH += 6;
+    if (aH > 6) aH -= 6;
+    
+    if (aH < 1)
+        return aV1 + (aV2 - aV1) * aH;
+    if (aH < 3)
+        return aV2;
+    if (aH < 4)
+        return aV1 + (aV2 - aV1) * (4 - aH);
+    
+    return aV1;
+}
+
+const double TINT2RGB_S = 1;
+const double TINT2RGB_L = 0.5;
+double TINT2RGB_V1, TINT2RGB_V2;
+
+void initTint2rgb() {
+    if (TINT2RGB_L < 0.5)
+        TINT2RGB_V2  = TINT2RGB_L * (1 + TINT2RGB_S);
+    else
+        TINT2RGB_V2  = TINT2RGB_L + TINT2RGB_S - (TINT2RGB_L * TINT2RGB_S);
+    
+    TINT2RGB_V1 = (2 * TINT2RGB_L - TINT2RGB_V2);
+}
+
+uint32_t tint2rgb(uint16_t aTint) {
+    if (aTint > 360)
+        aTint = 360;
+    
+    // simplified hsl to rgb conversion, because s and l are fixed and > 0
+    
+    uint8_t hr = aTint / 60;
+    uint8_t r = (uint8_t) (255 * h2rgb(TINT2RGB_V1, TINT2RGB_V2, (hr + 2)));
+    uint8_t g = (uint8_t) (255 * h2rgb(TINT2RGB_V1, TINT2RGB_V2, hr));
+    uint8_t b = (uint8_t) (255 * h2rgb(TINT2RGB_V1, TINT2RGB_V2, (hr - 2)));
+    
+    Serial.printf("r: %d, g: %d, b: %d", r, g, b);
+    return pixels.Color(r, g, b);
+}
+
+void paintRandomColors() {
+    uint32_t color;
+    for (uint8_t i = 0; i < NUM_PIXELS; i++) {
+        color = tint2rgb(random(0, 360));
+        pixels.setPixelColor(i, color);
+    }
+    pixels.show();
+}
+
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
     
     switch(type) {
@@ -398,6 +449,11 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
                 doDoubleChase();
             } else if (text == "heart") {
                 doHeart();
+            } else if (text == "random") {
+                USE_SERIAL.print("receive random command\n");
+                paintRandomColors();
+                setDelay(-1);
+                USE_SERIAL.print("random pixel colors should be painted...\n");
             } else if (text_length == 12 || text_length == 13) {
                 USE_SERIAL.print("text_length = 12 or 13\n");
                 res = sscanf(chars_payload, "color:#%02x%02x%02x", &r, &g, &b);
@@ -508,7 +564,9 @@ void setup() {
 //    while(WiFiMulti.run() != WL_CONNECTED) {
 //        delay(100);
 //    }
-
+    
+    initTint2rgb();
+    
     webSocket.begin();
     webSocket.onEvent(webSocketEvent);
 }
