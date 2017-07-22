@@ -331,7 +331,7 @@ void gradientsBy4
 }
 
 uint16_t gLastStepHeart = 0;
-uint8_t gStepFactorHeart = 4;
+uint8_t gStepFactorHeart = 1;
 uint8_t gLastStepFactorHeart = 1;
 uint32_t gColorBlack = pixels.Color(0, 0, 0);
 uint32_t gColorHeart1 = pixels.Color(153, 0, 36);
