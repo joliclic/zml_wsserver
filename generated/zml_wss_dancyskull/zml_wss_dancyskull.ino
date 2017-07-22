@@ -53,8 +53,8 @@ uint32_t gLastColor = COLOR_BLACK;
 
 const uint16_t MAX_VARIABLE_DELAY = 2000; // ms
 uint16_t gVariableBlinkDelay = 1000; //ms
-uint16_t gVariableChaseDelay = 1000;
-uint16_t gVariableDChaseDelay = 1000;
+uint16_t gVariableChaseDelay = 2000;
+uint16_t gVariableDChaseDelay = 2000;
 
 void initLedLayoutData() {
     gLAST_LED_OF_GROUP = new uint8_t[NB_LED_GROUPS];
