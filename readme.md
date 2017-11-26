@@ -24,7 +24,7 @@ The other parts are:
 What is ZYGOS MASKS LIGHTS ?
 ----------------------------
 
-The [Zygos Brass Band](zygos.fr) uses for its show named "Trybz" masks made with polypropylene sheet cutted with laser (original plans by Wintercroft). This project add some leds (WS2812 plugged into a Nodemcu card) inside them, and control them with a tablet/smartphone over a wifi network via WebSocket.
+The [Zygos Brass Band](http://zygos.fr) uses for its show named "Trybz" masks made with polypropylene sheet cutted with laser (original plans by Wintercroft). This project add some leds (WS2812 plugged into a Nodemcu card) inside them, and control them with a tablet/smartphone over a wifi network via WebSocket.
 
 
 Organisation of this code
