@@ -17,8 +17,8 @@ This repository is part of the Zygos Mask Lights project, inserting leds into ma
 This part contains the code for the microcontroller (a NodeMCU card) listening the network via WebSocket, and command the leds inside the mask (WS2812).
 
 The other parts are:
-- zml_webcontrol: an html page for sending commands via WebSocket.
-- zml_nodemcu_box: plan for a box for the NodeMCU card, made with MDF cutted by laser.
+- [zml_webcontrol](https://github.com/joliclic/zml_webcontrol): an html page for sending commands via WebSocket.
+- [zml_nodemcu_box](https://github.com/joliclic/zml_nodemcu_box): plan for a box for the NodeMCU card, made with MDF cutted by laser.
 
 
 What is ZYGOS MASKS LIGHTS ?
