@@ -62,3 +62,5 @@ Now you need the HTML page to send commands to the lights, this is the [zml_webc
 
 
 All the code is under the MIT license.
+
+[![link to a demonstration video](https://i.ytimg.com/vi/-qXGG1oTjpg/2.jpg)](https://youtu.be/-qXGG1oTjpg "Zygos Mask Lights")
