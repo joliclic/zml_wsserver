@@ -61,6 +61,19 @@ When the card is on power, a first white flash of all the leds should happen aft
 Now you need the HTML page to send commands to the lights, this is the [zml_webcontrol](https://github.com/joliclic/zml_webcontrol) part of this project. 
 
 
+License
+-------
+
 All the code is under the MIT license.
 
+
+---
+
+video:
+
 [![link to a demonstration video](https://i.ytimg.com/vi/-qXGG1oTjpg/hqdefault.jpg)](https://youtu.be/-qXGG1oTjpg "Zygos Mask Lights video link")
+
+photos:
+
+![photo 1](https://github.com/joliclic/zml_wsserver/wiki/images/340px-zygos_mask_1.jpeg)
+
