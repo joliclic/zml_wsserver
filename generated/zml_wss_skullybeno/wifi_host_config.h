@@ -2,7 +2,7 @@
 #define WIFI_HOST_CONFIG_H_
 
 #define MY_HOSTNAME "SkullyBeno"
-#define USE_STATIC_IP 1
+//#define USE_STATIC_IP 1
 
 #if USE_STATIC_IP
 IPAddress staticIP(192,168,2,12);

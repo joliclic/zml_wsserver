@@ -1,14 +1,14 @@
 #ifndef LEDS_LAYOUT_H_
 #define LEDS_LAYOUT_H_
 
-// Be carefull num_pixel is uint8_t , so between 0 and 255.
+// Be carefull MASK_NUM_PIXELS is uint8_t , so between 0 and 255.
 // But we wiil use int8_t for the leds layout, so a max of 127
 
-#define NUM_PIXELS 68
-#define NB_LED_GROUPS 11
-#define NB_LED_MAX_PER_GROUP 14
+#define MASK_NUM_PIXELS 68
+#define MASK_NB_LED_GROUPS 11
+#define MASK_NB_LED_MAX_PER_GROUP 14
 
-const int8_t LEDS_LAYOUT[NB_LED_GROUPS][NB_LED_MAX_PER_GROUP] = {
+const int8_t MASK_LEDS_LAYOUT[NB_LED_GROUPS][NB_LED_MAX_PER_GROUP] = {
     {  0,   1,   2,   3,   4,   5,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1},
     { 11,  10,   9,   8,   7,   6,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1},
     { 12,  13,  14,  15,  16,  17,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1},
