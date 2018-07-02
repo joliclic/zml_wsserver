@@ -31,7 +31,7 @@ ZML_Mask mask(MASK_NB_LED_GROUPS, MASK_NB_LED_MAX_PER_GROUP,
 
 WebSocketsServer webSocket = WebSocketsServer(81);
 
-void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
     switch(type) {
         case WStype_DISCONNECTED:
             USE_SERIAL.printf("[%u] Disconnected!\n", num);
@@ -119,11 +119,11 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
             break;
         }
         case WStype_BIN:
-            USE_SERIAL.printf("[%u] get binary lenght: %u\n", num, lenght);
-            hexdump(payload, lenght);
+            USE_SERIAL.printf("[%u] get binary length: %u\n", num, length);
+            hexdump(payload, length);
 
             // send message to client
-            // webSocket.sendBIN(num, payload, lenght);
+            // webSocket.sendBIN(num, payload, length);
             break;
     }
 
