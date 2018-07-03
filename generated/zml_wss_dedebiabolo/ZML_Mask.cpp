@@ -123,6 +123,7 @@ void ZML_Mask::doBlackOut(void) {
 }
 
 void ZML_Mask::blackOut(void) {
+    _lastColor = COLOR_BLACK;
     showAllPixels(0);
 }
 

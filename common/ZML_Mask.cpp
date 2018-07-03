@@ -123,6 +123,7 @@ void ZML_Mask::doBlackOut(void) {
 }
 
 void ZML_Mask::blackOut(void) {
+    _lastColor = COLOR_BLACK;
     showAllPixels(0);
 }
 
@@ -211,7 +212,6 @@ void ZML_Mask::blink(void) {
 }
 
 void ZML_Mask::doChase(void) {
-    ZML_MASK_SERIAL.println("HERE");
     blackOut();
     _currentAction = &ZML_Mask::chase;
     for (uint8_t i = 0; i < _NB_LED_GROUPS; i++) {
