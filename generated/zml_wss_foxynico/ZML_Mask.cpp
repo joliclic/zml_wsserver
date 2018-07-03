@@ -24,7 +24,10 @@ ZML_Mask::ZML_Mask
     _TINT2RGB_L(0.5),
     _stepFactorHeart(10),
     _lastStepFactorHeart(10),
-    _lastStepHeart(0)//,
+    _lastStepHeart(0),
+    _blinkDelay(400),
+    _chaseDelay(166),
+    _doubleChaseDelay(166)
     // _chaseLastILed(new int8_t[_NB_LED_GROUPS]),
     // _doubleChaseDir(new uint8_t[_NB_LED_GROUPS])
     {
