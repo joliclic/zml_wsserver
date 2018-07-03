@@ -23,6 +23,8 @@
 
 #define BIG_TICK 42
 
+#define MAX_RECEIVED_CMD_LENGTH 256
+
 ZML_Mask mask(MASK_NB_LED_GROUPS, MASK_NB_LED_MAX_PER_GROUP,
               &MASK_LEDS_LAYOUT[0][0], MASK_NUM_PIXELS, MASK_CMD_PIN,
               NEO_GRB | NEO_KHZ800);
@@ -42,66 +44,71 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
             break;
         }
         case WStype_TEXT: {
-            String text = String((char *) &payload[0]);
-            const char*  chars_payload = (const char *) payload;
-            int text_length = strlen(chars_payload);
+            // String text = String((char *) &payload[0]);
+            const char *chartext = (const char *) payload;
+            int text_length = strlen(chartext);
+            if (text_length > MAX_RECEIVED_CMD_LENGTH)
+                break;
             
             USE_SERIAL.printf("[%u] get command: %s\n", num, payload);
             // send message to client
-            webSocket.sendTXT(num, "received command: " + text);
+            char msg[] = "received command: ";
+            webSocket.sendTXT(num, strcat(msg, chartext));
             
             int r, g, b;
             int s;
             int res;
             
-            if (text == "ping") {
+            // if (text == "ping") {
+            if (strcmp(chartext, "ping") == 0) {
                 webSocket.sendTXT(num, "pong");
-            } else if (text == "black" || text == "blackout") {
+            } else if (strcmp(chartext, "black") == 0
+                       || strcmp(chartext, "blackout") == 0) {
                 mask.doBlackOut();
                 USE_SERIAL.print("all leds should be turned off now...\n");
-            } else if (text == "continuous") {
+            } else if (strcmp(chartext, "continuous") == 0) {
                 mask.doContinuous();
-            } else if (text == "color:purple") {
+            } else if (strcmp(chartext, "color:purple") == 0) {
                 mask.setColor(mask.COLOR_PURPLE);
-            } else if (text == "color:orange") {
+            } else if (strcmp(chartext, "color:orange") == 0) {
                 mask.setColor(mask.COLOR_ORANGE);
-            } else if (text == "blink") {
+            } else if (strcmp(chartext, "blink") == 0) {
                 mask.doBlink();
-            } else if (text == "chase") {
+            } else if (strcmp(chartext, "chase") == 0) {
                 mask.doChase();
-            } else if (text == "doublechase") {
+            } else if (strcmp(chartext, "doublechase") == 0) {
                 mask.doDoubleChase();
-            } else if (text == "heart") {
+            } else if (strcmp(chartext, "heart") == 0) {
                 mask.doHeart();
-            } else if (text == "random") {
+            } else if (strcmp(chartext, "random") == 0) {
                 USE_SERIAL.print("receive random command\n");
                 mask.paintRandomColors();
                 mask.setDelay(-1);
                 USE_SERIAL.print("random pixel colors should be painted...\n");
             } else if (text_length == 12 || text_length == 13) {
                 USE_SERIAL.print("text_length = 12 or 13\n");
-                res = sscanf(chars_payload, "color:#%02x%02x%02x", &r, &g, &b);
+                res = sscanf(chartext, "color:#%02x%02x%02x", &r, &g, &b);
                 if (res == 3) {
                     USE_SERIAL.printf("found: %u, r: %u, g: %u, b: %u\n",
                                       res, r, g, b);
                     mask.setColor((uint8_t) r, (uint8_t) g, (uint8_t) b);
                 } else {
-                    res = sscanf(chars_payload, "blinkspeed:%d", &s);
+                    res = sscanf(chartext, "blinkspeed:%d", &s);
                     if (res == 1) {
                         USE_SERIAL.printf("blinkspeed: %d\n", s);
                         mask.setBlinkSpeed(s);
                     } else {
-                        res = sscanf(chars_payload, "chasespeed:%d", &s);
+                        res = sscanf(chartext, "chasespeed:%d", &s);
                         if (res == 1) {
                             USE_SERIAL.printf("chasespeed: %d\n", s);
                             mask.setChaseSpeed(s);
                         } else {
-                            res = sscanf(chars_payload, "dchsespeed:%d", &s);
+                            res = sscanf(chartext, "dchsespeed:%d", &s);
                             if (res == 1) {
                                 USE_SERIAL.printf("dchsespeed: %d\n", s);
                                 mask.setDoubleChaseSpeed(s);
                             } else {
-                                res = sscanf(chars_payload, "heartspeed:%d", &s);
+                                res = sscanf(chartext, "heartspeed:%d", &s);
                                 if (res == 1) {
                                     USE_SERIAL.printf("heartspeed: %d\n", s);
                                     // we want in fact the opposite of s
