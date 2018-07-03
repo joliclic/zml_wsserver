@@ -62,65 +62,70 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
             // if (text == "ping") {
             if (strcmp(chartext, "ping") == 0) {
                 webSocket.sendTXT(num, "pong");
-            } else if (strcmp(chartext, "black") == 0
-                       || strcmp(chartext, "blackout") == 0) {
-                mask.doBlackOut();
-                USE_SERIAL.print("all leds should be turned off now...\n");
-            } else if (strcmp(chartext, "continuous") == 0) {
-                mask.doContinuous();
-            } else if (strcmp(chartext, "color:purple") == 0) {
-                mask.setColor(mask.COLOR_PURPLE);
-            } else if (strcmp(chartext, "color:orange") == 0) {
-                mask.setColor(mask.COLOR_ORANGE);
-            } else if (strcmp(chartext, "blink") == 0) {
-                mask.doBlink();
-            } else if (strcmp(chartext, "chase") == 0) {
-                mask.doChase();
-            } else if (strcmp(chartext, "doublechase") == 0) {
-                mask.doDoubleChase();
-            } else if (strcmp(chartext, "heart") == 0) {
-                mask.doHeart();
-            } else if (strcmp(chartext, "random") == 0) {
-                USE_SERIAL.print("receive random command\n");
-                mask.paintRandomColors();
-                mask.setDelay(-1);
-                USE_SERIAL.print("random pixel colors should be painted...\n");
-            } else if (text_length == 12 || text_length == 13) {
-                USE_SERIAL.print("text_length = 12 or 13\n");
-                res = sscanf(chartext, "color:#%02x%02x%02x", &r, &g, &b);
-                if (res == 3) {
-                    USE_SERIAL.printf("found: %u, r: %u, g: %u, b: %u\n",
-                                      res, r, g, b);
-                    mask.setColor((uint8_t) r, (uint8_t) g, (uint8_t) b);
-                } else {
-                    res = sscanf(chartext, "blinkspeed:%d", &s);
-                    if (res == 1) {
-                        USE_SERIAL.printf("blinkspeed: %d\n", s);
-                        mask.setBlinkSpeed(s);
+            } else if (strncmp(chartext, "mask:", 5) == 0) {
+                chartext += 5;
+                text_length = strlen(chartext);
+                USE_SERIAL.printf("Received mask command: %s\n", chartext);
+                
+                if (strcmp(chartext, "black") == 0
+                        || strcmp(chartext, "blackout") == 0) {
+                    mask.doBlackOut();
+                    USE_SERIAL.print("all leds should be turned off now...\n");
+                } else if (strcmp(chartext, "continuous") == 0) {
+                    mask.doContinuous();
+                } else if (strcmp(chartext, "color:purple") == 0) {
+                    mask.setColor(mask.COLOR_PURPLE);
+                } else if (strcmp(chartext, "color:orange") == 0) {
+                    mask.setColor(mask.COLOR_ORANGE);
+                } else if (strcmp(chartext, "blink") == 0) {
+                    mask.doBlink();
+                } else if (strcmp(chartext, "chase") == 0) {
+                    mask.doChase();
+                } else if (strcmp(chartext, "doublechase") == 0) {
+                    mask.doDoubleChase();
+                } else if (strcmp(chartext, "heart") == 0) {
+                    mask.doHeart();
+                } else if (strcmp(chartext, "random") == 0) {
+                    USE_SERIAL.print("receive random command\n");
+                    mask.paintRandomColors();
+                    mask.setDelay(-1);
+                    USE_SERIAL.print("random pixel colors should be painted...\n");
+                } else if (text_length == 12 || text_length == 13) {
+                    USE_SERIAL.print("text_length = 12 or 13\n");
+                    res = sscanf(chartext, "color:#%02x%02x%02x", &r, &g, &b);
+                    if (res == 3) {
+                        USE_SERIAL.printf("found: %u, r: %u, g: %u, b: %u\n",
+                                        res, r, g, b);
+                        mask.setColor((uint8_t) r, (uint8_t) g, (uint8_t) b);
                     } else {
-                        res = sscanf(chartext, "chasespeed:%d", &s);
+                        res = sscanf(chartext, "blinkspeed:%d", &s);
                         if (res == 1) {
-                            USE_SERIAL.printf("chasespeed: %d\n", s);
-                            mask.setChaseSpeed(s);
+                            USE_SERIAL.printf("blinkspeed: %d\n", s);
+                            mask.setBlinkSpeed(s);
                         } else {
-                            res = sscanf(chartext, "dchsespeed:%d", &s);
+                            res = sscanf(chartext, "chasespeed:%d", &s);
                             if (res == 1) {
-                                USE_SERIAL.printf("dchsespeed: %d\n", s);
-                                mask.setDoubleChaseSpeed(s);
+                                USE_SERIAL.printf("chasespeed: %d\n", s);
+                                mask.setChaseSpeed(s);
                             } else {
-                                res = sscanf(chartext, "heartspeed:%d", &s);
+                                res = sscanf(chartext, "dchsespeed:%d", &s);
                                 if (res == 1) {
-                                    USE_SERIAL.printf("heartspeed: %d\n", s);
-                                    // we want in fact the opposite of s
-                                    // setHeartStepFactor(-s);
-                                    mask.setHeartStepFactor(-s);
+                                    USE_SERIAL.printf("dchsespeed: %d\n", s);
+                                    mask.setDoubleChaseSpeed(s);
+                                } else {
+                                    res = sscanf(chartext, "heartspeed:%d", &s);
+                                    if (res == 1) {
+                                        USE_SERIAL.printf("heartspeed: %d\n", s);
+                                        // we want in fact the opposite of s
+                                        // setHeartStepFactor(-s);
+                                        mask.setHeartStepFactor(-s);
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-            
             // send data to all connected clients
             // webSocket.broadcastTXT("message here");
             break;
