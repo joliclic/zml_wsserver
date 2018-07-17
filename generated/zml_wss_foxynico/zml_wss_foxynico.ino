@@ -12,22 +12,29 @@
 #include <Adafruit_NeoPixel.h>
 
 #include "ZML_Mask.h"
+#include "ZML_Matrix.h"
 
 #include "router_config.h"
 #include "wifi_host_config.h"
 #include "leds_layout.h"
+#include "matrix_layout.h"
 
 #define USE_SERIAL Serial
 
 #define MASK_CMD_PIN D2
+#define MATRIX_CMD_PIN D8
+#define MATRIX_EMPTY_PIN D0
 
-#define BIG_TICK 42
+#define MATRIX_BRIGHTNESS 50
 
 #define MAX_RECEIVED_CMD_LENGTH 256
 
 ZML_Mask mask(MASK_NB_LED_GROUPS, MASK_NB_LED_MAX_PER_GROUP,
               &MASK_LEDS_LAYOUT[0][0], MASK_NUM_PIXELS, MASK_CMD_PIN,
               NEO_GRB | NEO_KHZ800);
+
+ZML_Matrix matrix(MATRIX_WIDTH, MATRIX_HEIGHT, MATRIX_CMD_PIN,
+                  MATRIX_LAYOUT_FLAGS, MATRIX_LED_TYPE, MATRIX_BRIGHTNESS);
 
 //ESP8266WiFiMulti WiFiMulti;
 
@@ -156,6 +163,8 @@ void setup() {
         delay(1000);
     }
     
+    randomSeed(analogRead(MATRIX_EMPTY_PIN));
+    
     WiFi.disconnect();
     mask.helloPixels();
     
@@ -194,10 +203,26 @@ void setup() {
     
     webSocket.begin();
     webSocket.onEvent(webSocketEvent);
+    
+    matrix.pixelRoute();
+    // matrix.matrixRoute();
+    // matrix.fillWithCircles();
+    // matrix.fillRandom();
+    // matrix.setScrolledTxtY(MATRIX_TXT_DFLT_Y);
+    // matrix.scrollText();
+    // matrix.fixedZigzag();
+    // matrix.rel_zigzag(-1);
+    // matrix.rel_zigzag(0);
+    // matrix.zigzag(); // TODO reessaiyer
+    // matrix.drawRainbowVLines();
+    // matrix.drawRainbowHLines();
+    matrix.fire();
+    // matrix.fire(ZML_MATRIX_FIRE_TYPE_PURPLE2);
 }
 
 void loop() {
     webSocket.loop();
     mask.loop();
+    matrix.loop();
 }
 
