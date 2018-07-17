@@ -204,6 +204,7 @@ void setup() {
     webSocket.begin();
     webSocket.onEvent(webSocketEvent);
     
+    matrix.setFirePosition(MATRIX_FIRE_X0, MATRIX_FIRE_Y0);
     matrix.pixelRoute();
     // matrix.matrixRoute();
     // matrix.fillWithCircles();
