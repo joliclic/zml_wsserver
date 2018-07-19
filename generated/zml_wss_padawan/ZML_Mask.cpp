@@ -17,6 +17,7 @@ ZML_Mask::ZML_Mask
     _NB_LED_MAX_PER_GROUP(aLayoutWidth),
     _last_led_of_group(new uint8_t[_NB_LED_GROUPS]),
     _nextActionTime(-1),
+    _nextSupraTime(-1),
     _curStep(0),
     _currentColor(COLOR_PURPLE),
     _lastColor(COLOR_BLACK), // MUST be different than _currentColor
@@ -46,6 +47,7 @@ ZML_Mask::ZML_Mask
         }
         
         _currentAction = &ZML_Mask::blackOut;
+        _currentSupraAction = &ZML_Mask::_nullAction;
         _pixels.begin();
         _initTint2rgb();
     }
@@ -61,10 +63,18 @@ void ZML_Mask::yo(void) const {
 }
 
 void ZML_Mask::loop(void) {
-    if (_nextActionTime != -1 && _nextActionTime <= millis()) {
-        (this->*_currentAction)();
+    if (_nextSupraTime != -1) {
+        if (_nextSupraTime <= millis()) {
+            (this->*_currentSupraAction)();
+        }
+    } else {
+        if (_nextActionTime != -1 && _nextActionTime <= millis()) {
+            (this->*_currentAction)();
+        }
     }
 }
+
+void ZML_Mask::_nullAction(void) {}
 
 long ZML_Mask::setDelay(long aDelay) {
     if (aDelay < 0)
@@ -73,6 +83,15 @@ long ZML_Mask::setDelay(long aDelay) {
         _nextActionTime = millis() + aDelay;
     
     return _nextActionTime;
+}
+
+long ZML_Mask::setSupraDelay(long aDelay) {
+    if (aDelay < 0)
+        _nextSupraTime = -1;
+    else
+        _nextSupraTime = millis() + aDelay;
+    
+    return _nextSupraTime;
 }
 
 long ZML_Mask::getNextActionTime(void) const {
@@ -401,11 +420,31 @@ uint32_t ZML_Mask::_tint2rgb(uint16_t aTint) {
     return _pixels.Color(r, g, b);
 }
 
-void ZML_Mask::paintRandomColors() {
+void ZML_Mask::paintRandomColors(void) {
     uint32_t color;
     for (uint8_t i = 0; i < _NB_PIXELS; i++) {
         color = _tint2rgb(random(0, 360));
         _pixels.setPixelColor(i, color);
     }
     _pixels.show();
+    _currentAction = &ZML_Mask::paintRandomColors;
+    setDelay(-1);
+}
+
+void ZML_Mask::flash(void) {
+    showAllPixels(ZML_MASK_FLASH_POWER, ZML_MASK_FLASH_POWER,
+                  ZML_MASK_FLASH_POWER);
+    setSupraDelay(ZML_MASK_FLASH_DELAY);
+    _currentSupraAction = &ZML_Mask::_stopFlash;
+}
+
+void ZML_Mask::_stopFlash(void) {
+    showAllPixels(0);
+    setSupraDelay(-1);
+    _currentSupraAction = &ZML_Mask::_nullAction;
+    if (_currentAction == &ZML_Mask::continuous) {
+        showAllPixels(_currentColor);
+    } else if (_currentAction == &ZML_Mask::paintRandomColors) {
+        paintRandomColors();
+    }
 }

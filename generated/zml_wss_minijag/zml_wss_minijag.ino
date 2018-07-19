@@ -74,8 +74,10 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                 text_length = strlen(chartext);
                 USE_SERIAL.printf("Received mask command: %s\n", chartext);
                 
-                if (strcmp(chartext, "black") == 0
-                        || strcmp(chartext, "blackout") == 0) {
+                if (strcmp(chartext, "flash") == 0) {
+                    mask.flash();
+                } else if (strcmp(chartext, "black") == 0
+                           || strcmp(chartext, "blackout") == 0) {
                     mask.doBlackOut();
                     USE_SERIAL.print("all leds should be turned off now...\n");
                 } else if (strcmp(chartext, "continuous") == 0) {
@@ -95,7 +97,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                 } else if (strcmp(chartext, "random") == 0) {
                     USE_SERIAL.print("receive random command\n");
                     mask.paintRandomColors();
-                    mask.setDelay(-1);
+                    // mask.setDelay(-1);
                     USE_SERIAL.print("random pixel colors should be painted...\n");
                 } else if (text_length == 12 || text_length == 13) {
                     USE_SERIAL.print("text_length = 12 or 13\n");

@@ -10,6 +10,9 @@
 
 #define ZML_MASK_HEART_TICK 42
 
+#define ZML_MASK_FLASH_DELAY 100
+#define ZML_MASK_FLASH_POWER 200
+
 #define ZML_MASK_MAX_SPEED_DIVISOR 50
 
 #define ZML_MASK_MAX_STEP_FACTOR_GB4 100
@@ -32,7 +35,8 @@ class ZML_Mask {
     
     long
         getNextActionTime(void) const,
-        setDelay(long aDelay);
+        setDelay(long aDelay),
+        setSupraDelay(long aDelay);
     
     static uint32_t Color(uint8_t aR, uint8_t aG, uint8_t aB);
     
@@ -53,9 +57,10 @@ class ZML_Mask {
         chase(void),
         doDoubleChase(void),
         doubleChase(void),
-        doHeart(),
-        heart(),
-        paintRandomColors();
+        doHeart(void),
+        heart(void),
+        paintRandomColors(void),
+        flash(void);
 
     uint8_t
         setHeartStepFactor(uint8_t aFactor);
@@ -78,8 +83,10 @@ class ZML_Mask {
         
         Adafruit_NeoPixel _pixels;
         
-        void (ZML_Mask::*_currentAction)(void);
-    
+        void
+            (ZML_Mask::*_currentAction)(void),
+            (ZML_Mask::*_currentSupraAction)(void);
+        
         const int8_t *_ledLayout;
         
         uint8_t
@@ -108,7 +115,9 @@ class ZML_Mask {
             _currentColor,
             _lastColor;
         
-        long _nextActionTime;
+        long
+            _nextActionTime,
+            _nextSupraTime;
         
         double
             _TINT2RGB_V1,
@@ -116,6 +125,7 @@ class ZML_Mask {
         
         void
         //     initLedLayoutData(),
+            _nullAction(void),
             _initTint2rgb(void),
             _printLedLayoutData() const,
             _setStepFactorGB4(uint8_t aFactor, uint8_t &aStepFactor),
@@ -123,7 +133,8 @@ class ZML_Mask {
                 (uint32_t aColor1, uint8_t aNbSteps1, uint32_t aColor2,
                 uint8_t aNbSteps2, uint32_t aColor3, uint8_t aNbSteps3,
                 uint32_t aColor4, uint8_t aNbSteps4, uint16_t &aLastStep,
-                uint8_t &aStepFactor, uint8_t &aLastStepFactor);
+                uint8_t &aStepFactor, uint8_t &aLastStepFactor),
+            _stopFlash(void);
 
         
         uint8_t
