@@ -52,7 +52,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
         }
         case WStype_TEXT: {
             // String text = String((char *) &payload[0]);
-            const char *chartext = (const char *) payload;
+            // const char *chartext = (const char *) payload;
+            char *chartext = (char *) payload;
             int text_length = strlen(chartext);
             if (text_length > MAX_RECEIVED_CMD_LENGTH)
                 break;
@@ -133,6 +134,39 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                             }
                         }
                     }
+                }
+            } else if (strncmp(chartext, "matrix:", 7) == 0) {
+                chartext += 7;
+                text_length = strlen(chartext);
+                USE_SERIAL.printf("Received matrix command: %s\n", chartext);
+                
+                if (strcmp(chartext, "black") == 0
+                           || strcmp(chartext, "blackout") == 0) {
+                    matrix.blackOut();
+                } else if (strcmp(chartext, "scrolltext") == 0) {
+                    matrix.scrollText();
+                } else if (strcmp(chartext, "fillrandom") == 0) {
+                    matrix.fillRandom();
+                } else if (strcmp(chartext, "circles") == 0) {
+                    matrix.fillWithCircles();
+                } else if (strcmp(chartext, "fixedzigzag") == 0) {
+                    matrix.fixedZigzag();
+                } else if (strcmp(chartext, "zigzag") == 0) {
+                    matrix.zigzag();
+                } else if (strcmp(chartext, "zigzag") == 0) {
+                    matrix.zigzag();
+                } else if (strcmp(chartext, "rainbow") == 0) {
+                    matrix.drawRainbowVLines();
+                } else if (strcmp(chartext, "rainbowh") == 0) {
+                    matrix.drawRainbowHLines();
+                } else if (strcmp(chartext, "fire") == 0) {
+                    matrix.fire();
+                } else if (strncmp(chartext, "setscrolledtext:", 16)) {
+                    chartext += 16;
+                    text_length = strlen(chartext);
+                    // if (text_length > 128)
+                    //     chartext[128] = '\0';
+                    matrix.setScrolledText(chartext);
                 }
             }
             // send data to all connected clients
@@ -219,7 +253,7 @@ void setup() {
     // matrix.zigzag(); // TODO reessaiyer
     // matrix.drawRainbowVLines();
     // matrix.drawRainbowHLines();
-    matrix.fire();
+    // matrix.fire();
     // matrix.fire(ZML_MATRIX_FIRE_TYPE_PURPLE2);
 }
 
