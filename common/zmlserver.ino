@@ -153,8 +153,6 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                     matrix.fixedZigzag();
                 } else if (strcmp(chartext, "zigzag") == 0) {
                     matrix.zigzag();
-                } else if (strcmp(chartext, "zigzag") == 0) {
-                    matrix.zigzag();
                 } else if (strcmp(chartext, "rainbow") == 0) {
                     matrix.drawRainbowVLines();
                 } else if (strcmp(chartext, "rainbowh") == 0) {
