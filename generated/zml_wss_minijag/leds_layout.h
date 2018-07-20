@@ -8,7 +8,7 @@
 #define MASK_NB_LED_GROUPS 2
 #define MASK_NB_LED_MAX_PER_GROUP 5
 
-const int8_t MASK_LEDS_LAYOUT[NB_LED_GROUPS][NB_LED_MAX_PER_GROUP] = {
+const int8_t MASK_LEDS_LAYOUT[MASK_NB_LED_GROUPS][MASK_NB_LED_MAX_PER_GROUP] = {
     { 4, 3, 2, 1, 0},
     { 5, 6, 7, 8, 9}
 };
