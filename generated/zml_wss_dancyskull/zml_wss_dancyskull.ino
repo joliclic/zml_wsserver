@@ -47,7 +47,9 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
             break;
         case WStype_CONNECTED: {
                 IPAddress ip = webSocket.remoteIP(num);
-                USE_SERIAL.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);                webSocket.sendTXT(num, "Connected");
+                USE_SERIAL.printf("[%u] Connected from %d.%d.%d.%d url: %s\n",
+                                  num, ip[0], ip[1], ip[2], ip[3], payload);
+                webSocket.sendTXT(num, "Connected");
             break;
         }
         case WStype_TEXT: {
@@ -151,8 +153,6 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                     matrix.fillWithCircles();
                 } else if (strcmp(chartext, "fixedzigzag") == 0) {
                     matrix.fixedZigzag();
-                } else if (strcmp(chartext, "zigzag") == 0) {
-                    matrix.zigzag();
                 } else if (strcmp(chartext, "zigzag") == 0) {
                     matrix.zigzag();
                 } else if (strcmp(chartext, "rainbow") == 0) {
