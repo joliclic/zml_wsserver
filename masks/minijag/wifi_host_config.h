@@ -1,7 +1,7 @@
 #ifndef WIFI_HOST_CONFIG_H_
 #define WIFI_HOST_CONFIG_H_
 
-#define MY_HOSTNAME "Jaguar"
+#define MY_HOSTNAME "MiniJaguar"
 #define USE_STATIC_IP 1
 
 #if USE_STATIC_IP
