@@ -4,6 +4,8 @@
 // Be carefull MASK_NUM_PIXELS is uint8_t , so between 0 and 255.
 // But we wiil use int8_t for the leds layout, so a max of 127
 
+// copy of the skullybeno mask
+
 #define MASK_NUM_PIXELS 41
 #define MASK_NB_LED_GROUPS 7
 #define MASK_NB_LED_MAX_PER_GROUP 6

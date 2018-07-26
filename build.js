@@ -11,7 +11,7 @@ var cfg = {
             "jaguar", "joparrot", "skullybeno", "sorcerer", "minijag",
             "padawan"],
     
-    dependencies: ["leds_layout.h", "matrix_layout.h", "router_config.h",
+    dependencies: ["mask_layout.h", "matrix_layout.h", "router_config.h",
                    "wifi_host_config.h", "ZML_Mask.cpp", "ZML_Mask.h",
                    "ZML_Matrix.cpp", "ZML_Matrix.h"],
     

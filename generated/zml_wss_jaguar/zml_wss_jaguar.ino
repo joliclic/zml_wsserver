@@ -16,7 +16,7 @@
 
 #include "router_config.h"
 #include "wifi_host_config.h"
-#include "leds_layout.h"
+#include "mask_layout.h"
 #include "matrix_layout.h"
 
 #define USE_SERIAL Serial
