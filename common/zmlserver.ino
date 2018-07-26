@@ -19,6 +19,14 @@
 #include "mask_layout.h"
 #include "matrix_layout.h"
 
+#if MASK_NUM_PIXELS
+#define USE_MASK 1
+#endif
+
+#if MATRIX_WIDTH
+#define USE_MATRIX 1
+#endif
+
 #define USE_SERIAL Serial
 
 #define MASK_CMD_PIN D2
@@ -29,12 +37,16 @@
 
 #define MAX_RECEIVED_CMD_LENGTH 256
 
+#if USE_MASK
 ZML_Mask mask(MASK_NB_LED_GROUPS, MASK_NB_LED_MAX_PER_GROUP,
               &MASK_LEDS_LAYOUT[0][0], MASK_NUM_PIXELS, MASK_CMD_PIN,
               NEO_GRB | NEO_KHZ800);
+#endif
 
+#if USE_MATRIX
 ZML_Matrix matrix(MATRIX_WIDTH, MATRIX_HEIGHT, MATRIX_CMD_PIN,
                   MATRIX_LAYOUT_FLAGS, MATRIX_LED_TYPE, MATRIX_BRIGHTNESS);
+#endif
 
 //ESP8266WiFiMulti WiFiMulti;
 
@@ -72,7 +84,9 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
             // if (text == "ping") {
             if (strcmp(chartext, "ping") == 0) {
                 webSocket.sendTXT(num, "pong");
-            } else if (strncmp(chartext, "mask:", 5) == 0) {
+            }
+#if USE_MASK
+            else if (strncmp(chartext, "mask:", 5) == 0) {
                 chartext += 5;
                 text_length = strlen(chartext);
                 USE_SERIAL.printf("Received mask command: %s\n", chartext);
@@ -137,7 +151,10 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                         }
                     }
                 }
-            } else if (strncmp(chartext, "matrix:", 7) == 0) {
+            }
+#endif
+#if USE_MATRIX
+            else if (strncmp(chartext, "matrix:", 7) == 0) {
                 chartext += 7;
                 text_length = strlen(chartext);
                 USE_SERIAL.printf("Received matrix command: %s\n", chartext);
@@ -169,6 +186,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                     matrix.setScrolledText(chartext);
                 }
             }
+#endif
+            
             // send data to all connected clients
             // webSocket.broadcastTXT("message here");
             break;
@@ -202,7 +221,9 @@ void setup() {
     randomSeed(analogRead(MATRIX_EMPTY_PIN));
     
     WiFi.disconnect();
+#if USE_MASK
     mask.helloPixels();
+#endif
     
     WiFi.hostname(MY_HOSTNAME);
     WiFi.mode(WIFI_STA);
@@ -219,7 +240,9 @@ void setup() {
         Serial.print(".");
     }
     Serial.println();
+#if USE_MASK
     mask.helloPixels();
+#endif
     
     Serial.print("Connected, IP address: ");
     Serial.println(WiFi.localIP());
@@ -240,6 +263,7 @@ void setup() {
     webSocket.begin();
     webSocket.onEvent(webSocketEvent);
     
+#if USE_MATRIX
     matrix.setFirePosition(MATRIX_FIRE_X0, MATRIX_FIRE_Y0);
     matrix.pixelRoute();
     // matrix.matrixRoute();
@@ -255,11 +279,16 @@ void setup() {
     // matrix.drawRainbowHLines();
     // matrix.fire();
     // matrix.fire(ZML_MATRIX_FIRE_TYPE_PURPLE2);
+#endif
 }
 
 void loop() {
     webSocket.loop();
+#if USE_MASK
     mask.loop();
+#endif
+#if USE_MATRIX
     matrix.loop();
+#endif
 }
 
