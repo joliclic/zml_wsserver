@@ -181,8 +181,6 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                 } else if (strncmp(chartext, "setscrolledtext:", 16)) {
                     chartext += 16;
                     text_length = strlen(chartext);
-                    // if (text_length > 128)
-                    //     chartext[128] = '\0';
                     matrix.setScrolledText(chartext);
                 }
             }

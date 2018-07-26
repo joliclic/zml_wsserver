@@ -246,7 +246,7 @@ byte ZML_Matrix::_utf8ascii(byte aAscii) {
 void ZML_Matrix::_utf8ascii(char* aS) {
     int k = 0;
     char c;
-    int l = strlen(aS);
+    int l = min((int) strlen(aS), ZML_MATRIX_SCROLLTEXT_MAX_LENGTH);
     for (int i = 0; i < l; i++) {
         c = _utf8ascii(aS[i]);
         if (c != 0)
