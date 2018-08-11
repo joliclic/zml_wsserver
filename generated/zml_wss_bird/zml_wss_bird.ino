@@ -162,6 +162,10 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                 if (strcmp(chartext, "black") == 0
                            || strcmp(chartext, "blackout") == 0) {
                     matrix.blackOut();
+                } else if (strcmp(chartext, "demo") == 0) {
+                    matrix.demo();
+                } else if (strcmp(chartext, "stopdemo") == 0) {
+                    matrix.stopDemo();
                 } else if (strcmp(chartext, "scrolltext") == 0) {
                     matrix.scrollText();
                 } else if (strcmp(chartext, "fillrandom") == 0) {
@@ -264,19 +268,8 @@ void setup() {
 #if USE_MATRIX
     matrix.setFirePosition(MATRIX_FIRE_X0, MATRIX_FIRE_Y0);
     matrix.pixelRoute();
-    // matrix.matrixRoute();
-    // matrix.fillWithCircles();
-    // matrix.fillRandom();
-    // matrix.setScrolledTxtY(MATRIX_TXT_DFLT_Y);
-    // matrix.scrollText();
-    // matrix.fixedZigzag();
-    // matrix.rel_zigzag(-1);
-    // matrix.rel_zigzag(0);
-    // matrix.zigzag(); // TODO reessaiyer
-    // matrix.drawRainbowVLines();
-    // matrix.drawRainbowHLines();
-    // matrix.fire();
-    // matrix.fire(ZML_MATRIX_FIRE_TYPE_PURPLE2);
+    matrix.blackOut();
+    // matrix.demo();
 #endif
 }
 

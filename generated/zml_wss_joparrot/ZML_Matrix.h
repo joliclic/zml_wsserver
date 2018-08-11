@@ -68,7 +68,8 @@ class ZML_Matrix {
     
     void
         loop(void),
-        // demo(void),
+        demo(void),
+        stopDemo(void),
         blackOut(void),
         showAllPixels(uint32_t aColor),
         showAllPixels(uint8_t aR, uint8_t aG, uint8_t aB),
@@ -124,6 +125,7 @@ class ZML_Matrix {
         _NB_PIXELS;
     
     uint8_t
+        _demoStep,
         _curCircleColorI,
         _zigzagX,
         _zigzagY,
@@ -180,6 +182,7 @@ class ZML_Matrix {
     //String _utf8ascii(String aS);
     
     void
+        _demo(void),
         _utf8ascii(char* aS),
         _scrollTextFrame(void),
         _fillRandomStep(void),

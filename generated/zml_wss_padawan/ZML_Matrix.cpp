@@ -21,6 +21,7 @@ ZML_Matrix::ZML_Matrix
     COLOR_DARK_ORANGE2(_matrix.Color(128, 75, 0)),
     _nextActionTime(-1),
     _nextMetaTime(-1),
+    _demoStep(0),
     // _scrolledTxt(F("ZYGOS POWA !")),
     _scrolledTxt("ZYGOS POWA !"),
     _scrolledTxtTick(150), // ms
@@ -133,6 +134,62 @@ void ZML_Matrix::showAllPixels(uint32_t aColor) {
 
 void ZML_Matrix::showAllPixels(uint8_t aR, uint8_t aG, uint8_t aB) {
     showAllPixels(_pixels.Color(aR, aG, aB));
+}
+
+void ZML_Matrix::demo(void) {
+    stopMetaAction();
+    _demoStep = 0;
+    _currentMetaAction = &ZML_Matrix::_demo;
+    _demo();
+}
+
+void ZML_Matrix::_demo(void) {
+    switch (_demoStep) {
+        case 0:
+            _demoStep++;
+            setMetaDelay(2000);
+            drawRainbowVLines();
+            break;
+        case 1:
+            _demoStep++;
+            setMetaDelay(2000);
+            drawRainbowHLines();
+            break;
+        case 2:
+            _demoStep++;
+            setMetaDelay(4000);
+            fire();
+            break;
+        case 3:
+            _demoStep++;
+            setMetaDelay(5000);
+            showAllPixels(0);
+            fillRandom();
+            break;
+        case 4:
+            _demoStep++;
+            setMetaDelay(5000);
+            fillWithCircles();
+            break;
+        case 5:
+            _demoStep++;
+            setMetaDelay(3000);
+            zigzag();
+            break;
+        case 6:
+            _demoStep++;
+            setMetaDelay(4000);
+            fire(ZML_MATRIX_FIRE_TYPE_PURPLE2);
+            break;
+        default:
+            _demoStep = 1;
+            setMetaDelay(2000);
+            drawRainbowVLines();
+    }
+}
+
+void ZML_Matrix::stopDemo(void) {
+    blackOut();
 }
 
 void ZML_Matrix::setScrollTextSpeed(uint8_t aDivisor) {
@@ -307,7 +364,7 @@ void ZML_Matrix::_fillWithCircles(void) {
     _curCircleR = 1;
     _curCircleX = random(0, _WIDTH + 1);
     _curCircleY = random(0, _HEIGHT + 1);
-    ZML_MATRIX_SERIAL.printf("_curCircleX: %d, _curCircleY: %d\n", _curCircleX, _curCircleY);
+    // ZML_MATRIX_SERIAL.printf("_curCircleX: %d, _curCircleY: %d\n", _curCircleX, _curCircleY);
     _currentAction = &ZML_Matrix::_fillWithCirclesFrame;
     _fillWithCirclesFrame();
 }
@@ -319,7 +376,7 @@ void ZML_Matrix::_fillWithCirclesFrame(void) {
             _curCircleColorI = 0;
         _fillWithCircles();
     } else {
-        ZML_MATRIX_SERIAL.printf("_curCircleR: %d\n", _curCircleR);
+        // ZML_MATRIX_SERIAL.printf("_curCircleR: %d\n", _curCircleR);
         _matrix.fillCircle(_curCircleX, _curCircleY, _curCircleR,
                            _circleColors[_curCircleColorI]);
         _matrix.show();
