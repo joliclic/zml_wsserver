@@ -29,9 +29,15 @@
 
 #define USE_SERIAL Serial
 
+#ifndef MASK_CMD_PIN
 #define MASK_CMD_PIN D2
+#endif
+#ifndef MATRIX_CMD_PIN
 #define MATRIX_CMD_PIN D8
+#endif
+#ifndef MATRIX_EMPTY_PIN
 #define MATRIX_EMPTY_PIN D0
+#endif
 
 #define MATRIX_BRIGHTNESS 50
 
