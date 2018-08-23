@@ -41,10 +41,10 @@ ZML_Matrix::ZML_Matrix
     _curFireType(1)
     {
         _pixels.begin();
-        _pixels.setBrightness(50);
+        _pixels.setBrightness(aBrightness);
         _matrix.begin();
         _matrix.setTextWrap(false);
-        _matrix.setBrightness(50);
+        _matrix.setBrightness(aBrightness);
         blackOut();
     }
 
