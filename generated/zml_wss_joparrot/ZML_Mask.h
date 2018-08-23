@@ -60,7 +60,8 @@ class ZML_Mask {
         doHeart(void),
         heart(void),
         paintRandomColors(void),
-        flash(void);
+        flash(void),
+        setBrightness(uint8_t);
 
     uint8_t
         setHeartStepFactor(uint8_t aFactor);

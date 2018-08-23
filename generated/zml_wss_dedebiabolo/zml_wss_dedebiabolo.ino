@@ -230,6 +230,9 @@ void setup() {
     
     WiFi.disconnect();
 #if USE_MASK
+#ifdef MASK_BRIGHTNESS
+    mask.setBrightness(MASK_BRIGHTNESS);
+#endif
     mask.helloPixels();
 #endif
     

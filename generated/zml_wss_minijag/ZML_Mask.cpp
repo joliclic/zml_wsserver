@@ -448,3 +448,7 @@ void ZML_Mask::_stopFlash(void) {
         paintRandomColors();
     }
 }
+
+void ZML_Mask::setBrightness(uint8_t aB) {
+    _pixels.setBrightness(aB);
+}
