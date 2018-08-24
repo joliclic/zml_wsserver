@@ -126,7 +126,7 @@ void ZML_Matrix::blackOut(void) {
 }
 
 void ZML_Matrix::showAllPixels(uint32_t aColor) {
-    for (uint8_t i = 0; i < _NB_PIXELS; i++) {
+    for (uint16_t i = 0; i < _NB_PIXELS; i++) {
         _pixels.setPixelColor(i, aColor);
     }
     _pixels.show();
