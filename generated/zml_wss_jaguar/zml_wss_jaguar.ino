@@ -188,6 +188,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                     matrix.drawRainbowHLines();
                 } else if (strcmp(chartext, "fire") == 0) {
                     matrix.fire();
+                } else if (strcmp(chartext, "purplefire") == 0) {
+                    matrix.fire(ZML_MATRIX_FIRE_TYPE_PURPLE2);
                 } else if (strncmp(chartext, "setscrolledtext:", 16)) {
                     chartext += 16;
                     text_length = strlen(chartext);
