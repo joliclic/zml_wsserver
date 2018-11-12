@@ -9,7 +9,7 @@ var fse = require('fs-extra');
 var cfg = {
     masks: ["bird", "chapi", "chapo", "dancyskull", "dedebiabolo", "filoudevil",
             "foxynico", "jaguar", "joparrot", "kickmatrix", "skullybeno",
-            "snaredrum", "sorcerer", "minijag", "padawan"],
+            "snaredrum", "sorcerer", "minijag", "padawan", "sousa"],
     
     dependencies: ["mask_layout.h", "matrix_layout.h", "router_config.h",
                    "wifi_host_config.h", "ZML_Mask.cpp", "ZML_Mask.h",
